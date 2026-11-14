@@ -69,17 +69,6 @@ export default class Pitches {
 			this.octdegmidis[oct] = {}
 
 			f = get_freq(this.#baseFrequency, scale.edivisions, scale.tonic, oct, this.#rootOctave)
-			console.info(
-				"ratio",
-				{ scale },
-				f,
-				this.#baseFrequency,
-				scale.edivisions,
-				scale.tonic,
-				oct,
-				this.#rootOctave
-			)
-
 			// Loop through Scale
 			for (let deg = 0; deg < scale.length; deg++) {
 				++index

@@ -85,8 +85,6 @@ export const parseEdoScaleMicroTuningOctave = (
 		KEY_MAPPING
 	)
 
-	console.info("parseEdoScaleMicroTuningOctave", { scale, intervals, pitches })
-
 	// cache for next time
 	pitchesCache.set(key, pitches)
 

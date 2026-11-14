@@ -1,249 +1,74 @@
 # pitfalls
 
-Music theory utilities for scales, intervals, chords, and microtonality.
-
-## Overview
-
-Pitfalls provides comprehensive music theory tools for:
-- Scale generation and analysis
-- Interval calculations
-- Chord recognition and generation
-- Equal Division of Octave (EDO) microtonal systems
-- Note transposition
-- Harmonic analysis
+Microtonal tuning for equal divisions of the octave (EDO). Give it a scale in large/small step notation and it returns the frequency and fractional MIDI pitch of every degree, plus the cent offsets needed to retune a 12-note keyboard.
 
 ## Installation
 
 ```bash
+npm install github:designerzen/pitfalls
+# or
 pnpm add github:designerzen/pitfalls
 ```
 
+## Scale notation
+
+A scale is a sequence of `L` (large) and `s` (small) steps, a large step size and a small step size. The number of divisions of the octave is the sum of the steps.
+
+| Scale | Sequence | Large | Small | EDO | Notes |
+| --- | --- | --- | --- | --- | --- |
+| Major | `LLsLLLs` | 2 | 1 | 12 | 7 |
+| Gorgo-6 | `LLsLLL` | 3 | 1 | 16 | 6 |
+
+See [MOS scales](https://en.xen.wiki/w/MOS_scale) for more on the notation.
+
 ## Usage
 
-### Scales
-
 ```typescript
-import { Scale } from 'pitfalls'
+import { parseEdoScaleMicroTuningOctave } from "pitfalls"
 
-// Create C Major scale
-const scale = new Scale('major', 60) // C4
+// Gorgo-6 in 16-EDO, starting on MIDI note 60 in octave 3
+const pitches = parseEdoScaleMicroTuningOctave(60, 3, "LLsLLL", 3, 1)
 
-// Get scale notes
-const notes = scale.getNotes() // [60, 62, 64, 65, 67, 69, 71]
-
-// Get scale degree names
-scale.getDegree(0) // 'root'
-scale.getDegree(2) // 'third'
-scale.getDegree(4) // 'fifth'
-
-// Check if note is in scale
-scale.contains(64) // true
-scale.contains(63) // false
-
-// Get scale intervals
-const intervals = scale.getIntervals() // [2, 2, 1, 2, 2, 2, 1]
+pitches.octdegfreq(3, 2)  // 297.936  (Hz of degree 2 in octave 3)
+pitches.octdegmidi(3, 2)  // 62.25    (fractional MIDI pitch)
+pitches.midiMappings      // [[60,0],[62,25],[64,50],[65,25],[67,50],[69,75]]  ([MIDI note, cents])
+pitches.octaveTuning      // Map of MIDI 60-71 to cent offsets, for retuning a 12-note octave
 ```
 
-### Available Scales
+Results are cached, so calling it again with the same arguments returns the same `Pitches` object.
 
-- `major` - Ionian mode
-- `minor` - Natural minor (Aeolian)
-- `harmonic_minor` - Harmonic minor
-- `melodic_minor` - Melodic minor
-- `dorian` - Dorian mode
-- `phrygian` - Phrygian mode
-- `lydian` - Lydian mode
-- `mixolydian` - Mixolydian mode
-- `locrian` - Locrian mode
-- `pentatonic_major` - Major pentatonic
-- `pentatonic_minor` - Minor pentatonic
-- `blues` - Blues scale
-- `chromatic` - All 12 semitones
+## API
 
-### Intervals
+### `parseEdoScaleMicroTuningOctave(baseNoteMidi, rootOctave, sequence, large, small, rootFrequency = 440)`
 
-```typescript
-import { Interval } from 'pitfalls'
+Builds and caches a `Pitches` object. `rootFrequency` is the tuning of A4. `edoScaleMicroTuningOctave` is the same function without `rootFrequency`, always using 440 Hz.
 
-// Create interval
-const interval = new Interval('perfect_fifth', 60)
-console.log(interval.semitones) // 7
-console.log(interval.getCentsDeviation()) // 0
+### `EdoScale`
 
-// Transpose note by interval
-const transposed = interval.transpose(60)
-console.log(transposed) // 67 (G4)
+`new EdoScale(large, small, sequence, medium?)` holds the step pattern. Read `edivisions` (divisions of the octave), `length` (notes per octave) and `divisions` (step offsets of each degree).
 
-// Get interval name
-const interval2 = Interval.fromSemitones(4) // 4 semitones
-console.log(interval2.name) // 'major_third'
-```
+### `Intervals`
 
-### Available Intervals
+`new Intervals(scale)` works out each degree's ratio to the root. `ratio(i)`, `intervalLabel(i)`, `intervalRatio(i)`, `intervalError(i)` and `nearestDegreeTo(ratio, threshold?)`.
 
-- `minor_second` (1 semitone)
-- `major_second` (2 semitones)
-- `minor_third` (3 semitones)
-- `major_third` (4 semitones)
-- `perfect_fourth` (5 semitones)
-- `augmented_fourth` (6 semitones)
-- `perfect_fifth` (7 semitones)
-- `minor_sixth` (8 semitones)
-- `major_sixth` (9 semitones)
-- `minor_seventh` (10 semitones)
-- `major_seventh` (11 semitones)
-- `octave` (12 semitones)
+### `Pitches`
 
-### Chords
+`new Pitches(scale, intervals, tuning, midiStart, rootOctave, keyMappings)` maps every degree in octaves 0-8:
 
-```typescript
-import { Chord } from 'pitfalls'
+- `octdegfreq(octave, degree)` and `octdegmidi(octave, degree)`: frequency and fractional MIDI pitch, with degrees counted from 1
+- `octdeg(degree)`: turns a degree beyond the first octave into `[octave, degree]`
+- `freq(index)` and `degree(index)`: lookup by running index across all octaves (`getFrequency` and `getDegree` on the object `parseEdoScaleMicroTuningOctave` returns)
+- `midiMappings` and `octaveTuning`: the root octave as MIDI notes with cent offsets
 
-// Create chord
-const chord = new Chord('maj7', 60) // C Major 7
+### `keyMappings`
 
-// Get chord notes
-console.log(chord.notes) // [60, 64, 67, 71]
-
-// Get chord intervals
-console.log(chord.intervals) // ['root', 'major_third', 'perfect_fifth', 'major_seventh']
-
-// Invert chord
-const inverted = chord.invert(1) // First inversion
-console.log(inverted.notes) // [64, 67, 71, 60]
-
-// Get chord name
-console.log(chord.name) // 'Cmaj7'
-```
-
-### Available Chord Types
-
-**Triads:**
-- `major`, `maj`, `M` - Major (1, 3, 5)
-- `minor`, `min`, `m` - Minor (1, b3, 5)
-- `diminished`, `dim` - Diminished (1, b3, b5)
-- `augmented`, `aug` - Augmented (1, 3, #5)
-
-**Seventh Chords:**
-- `maj7` - Major 7 (1, 3, 5, 7)
-- `min7` - Minor 7 (1, b3, 5, b7)
-- `dom7` - Dominant 7 (1, 3, 5, b7)
-- `minmaj7` - Minor Major 7 (1, b3, 5, 7)
-- `dim7` - Diminished 7 (1, b3, b5, b7)
-
-**Extensions:**
-- `maj9`, `min9`, `dom9` - 9th chords
-- `maj11`, `min11`, `dom11` - 11th chords
-- `maj13`, `min13`, `dom13` - 13th chords
-
-### Equal Division of Octave (EDO)
-
-```typescript
-import { EDOSystem } from 'pitfalls'
-
-// Create 12-TET (standard tuning)
-const edo12 = new EDOSystem(12)
-console.log(edo12.getFrequency(60)) // 261.63 Hz
-
-// Create alternative tuning system (e.g., 19-TET)
-const edo19 = new EDOSystem(19)
-const freq = edo19.getFrequency(60)
-
-// Get cent deviation from 12-TET
-const cents = edo19.getCentDeviation(60)
-```
-
-## API Reference
-
-### Scale
-
-```typescript
-interface Scale {
-  name: string
-  root: number
-  getNotes(): number[]
-  getIntervals(): number[]
-  getDegree(degree: number): string
-  contains(note: number): boolean
-  transpose(semitones: number): Scale
-}
-```
-
-### Interval
-
-```typescript
-interface Interval {
-  name: string
-  semitones: number
-  cents: number
-  transpose(note: number): number
-  invert(): Interval
-}
-```
-
-### Chord
-
-```typescript
-interface Chord {
-  name: string
-  type: string
-  root: number
-  notes: number[]
-  intervals: string[]
-  invert(inversions: number): Chord
-  contains(note: number): boolean
-}
-```
-
-### EDOSystem
-
-```typescript
-interface EDOSystem {
-  divisions: number
-  getFrequency(note: number): number
-  getNote(frequency: number): number
-  getCentDeviation(note: number): number
-}
-```
-
-## Examples
-
-### Harmonization
-
-```typescript
-import { Scale, Chord } from 'pitfalls'
-
-const scale = new Scale('major', 60) // C Major
-const scaleNotes = scale.getNotes()
-
-// Build chord on each scale degree
-const harmonizedChords = scaleNotes.map((root, degree) => {
-  const chordType = ['maj7', 'min7', 'min7', 'maj7', 'dom7', 'min7', 'min7b5'][degree]
-  return new Chord(chordType, root)
-})
-```
-
-### Microtonality
-
-```typescript
-import { EDOSystem } from 'pitfalls'
-
-// Quarter-tone system (24 divisions)
-const edo24 = new EDOSystem(24)
-const quarterSharp = edo24.getFrequency(60.5) // Half of semitone sharp
-
-// Neutral third tuning (19-TET)
-const edo19 = new EDOSystem(19)
-const neutralThird = edo19.getFrequency(64) // Between major and minor third
-```
+A `Map` from scale length to the default keyboard layout passed to `Pitches`.
 
 ## License
 
-MIT
+AGPL-3.0-or-later. Copyright (C) 2025 Rob McKinnon.
 
-## See Also
+## See also
 
-- [audiobus](https://github.com/designerzen/audiobus) - Audio engine
-- [Music Theory](https://en.wikipedia.org/wiki/Music_theory)
-- [12 Equal Temperament](https://en.wikipedia.org/wiki/Equal_temperament)
-- [Just Intonation](https://en.wikipedia.org/wiki/Just_intonation)
+- [audiobus](https://github.com/designerzen/audiobus), which uses this for its microtonality transformer
+- [Equal temperament](https://en.wikipedia.org/wiki/Equal_temperament)
