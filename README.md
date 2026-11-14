@@ -1,4 +1,4 @@
-# @harmoneasy/pitfalls
+# pitfalls
 
 Music theory utilities for scales, intervals, chords, and microtonality.
 
@@ -15,7 +15,7 @@ Pitfalls provides comprehensive music theory tools for:
 ## Installation
 
 ```bash
-pnpm install @harmoneasy/pitfalls
+pnpm add github:designerzen/pitfalls
 ```
 
 ## Usage
@@ -23,7 +23,7 @@ pnpm install @harmoneasy/pitfalls
 ### Scales
 
 ```typescript
-import { Scale } from '@harmoneasy/pitfalls'
+import { Scale } from 'pitfalls'
 
 // Create C Major scale
 const scale = new Scale('major', 60) // C4
@@ -63,7 +63,7 @@ const intervals = scale.getIntervals() // [2, 2, 1, 2, 2, 2, 1]
 ### Intervals
 
 ```typescript
-import { Interval } from '@harmoneasy/pitfalls'
+import { Interval } from 'pitfalls'
 
 // Create interval
 const interval = new Interval('perfect_fifth', 60)
@@ -97,7 +97,7 @@ console.log(interval2.name) // 'major_third'
 ### Chords
 
 ```typescript
-import { Chord } from '@harmoneasy/pitfalls'
+import { Chord } from 'pitfalls'
 
 // Create chord
 const chord = new Chord('maj7', 60) // C Major 7
@@ -139,7 +139,7 @@ console.log(chord.name) // 'Cmaj7'
 ### Equal Division of Octave (EDO)
 
 ```typescript
-import { EDOSystem } from '@harmoneasy/pitfalls'
+import { EDOSystem } from 'pitfalls'
 
 // Create 12-TET (standard tuning)
 const edo12 = new EDOSystem(12)
@@ -211,7 +211,7 @@ interface EDOSystem {
 ### Harmonization
 
 ```typescript
-import { Scale, Chord } from '@harmoneasy/pitfalls'
+import { Scale, Chord } from 'pitfalls'
 
 const scale = new Scale('major', 60) // C Major
 const scaleNotes = scale.getNotes()
@@ -226,7 +226,7 @@ const harmonizedChords = scaleNotes.map((root, degree) => {
 ### Microtonality
 
 ```typescript
-import { EDOSystem } from '@harmoneasy/pitfalls'
+import { EDOSystem } from 'pitfalls'
 
 // Quarter-tone system (24 divisions)
 const edo24 = new EDOSystem(24)
@@ -243,7 +243,7 @@ MIT
 
 ## See Also
 
-- [@harmoneasy/audiobus](../audiobus) - Audio engine
+- [audiobus](https://github.com/designerzen/audiobus) - Audio engine
 - [Music Theory](https://en.wikipedia.org/wiki/Music_theory)
 - [12 Equal Temperament](https://en.wikipedia.org/wiki/Equal_temperament)
 - [Just Intonation](https://en.wikipedia.org/wiki/Just_intonation)

@@ -3,22 +3,20 @@
 	"version": "0.1.1",
 	"description": "Music theory utilities - scales, intervals, chords, and microtonality (EDO)",
 	"type": "module",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/designerzen/pitfalls.git"
+	},
 	"main": "index.ts",
 	"exports": {
 		".": "./index.ts",
 		"./ts/*": "./ts/*"
 	},
-	"scripts": {
-		"dev": "echo 'No dev server for this package'",
-		"lint": "oxlint .",
-		"lint:fix": "oxlint --fix ."
-	},
 	"files": [
-		"*.ts"
+		"*.ts",
+		"*.mjs",
+		"ts"
 	],
-	"dependencies": {
-		"@harmoneasy/shared-config": "workspace:^"
-	},
 	"devDependencies": {
 		"typescript": "~5.9.3"
 	}

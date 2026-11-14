@@ -1,4 +1,4 @@
-import { parseEdoScaleMicroTuningOctave } from "index.ts"
+import { parseEdoScaleMicroTuningOctave } from "./index.ts"
 
 const test12 = parseEdoScaleMicroTuningOctave(60, 3, "LLsLLLs", 2, 1)
 
