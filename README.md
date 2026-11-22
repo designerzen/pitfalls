@@ -70,5 +70,7 @@ AGPL-3.0-or-later. Copyright (C) 2025 Rob McKinnon.
 
 ## See also
 
+The [manifest](package.json) supplies the current package version and source export paths; [index.ts](index.ts) defines the public tuning functions. This package has no build or test script. Use a TypeScript-aware host/bundler and check the receiving instrument's tuning support when integrating fractional MIDI pitches.
+
 - [audiobus](https://github.com/designerzen/audiobus), which uses this for its microtonality transformer
 - [Equal temperament](https://en.wikipedia.org/wiki/Equal_temperament)
